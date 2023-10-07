@@ -1,0 +1,19 @@
+{
+  "name": "firebyte",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diegolorenzo12/FlameFox-Nasa-SpaceApp-2023-Backend.git"
+  },
+  "author": "FlameFox Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/diegolorenzo12/FlameFox-Nasa-SpaceApp-2023-Backend/issues"
+  },
+  "homepage": "https://github.com/diegolorenzo12/FlameFox-Nasa-SpaceApp-2023-Backend#readme"
+}
