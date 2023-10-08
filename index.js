@@ -1,4 +1,6 @@
 require("dotenv").config()
+const {PORT} = require("./src/configs/ws")
+
 
 
 
@@ -7,5 +9,5 @@ require("dotenv").config()
 const app = require('./src/app')
 
 app.listen(1080, () =>{
-    console.log("Server started")
+    console.log("Server started on port " + PORT)
 })
