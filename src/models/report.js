@@ -9,10 +9,10 @@ const reportSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    images :{
-        type: [String],
+    images :[{
+        type: String,  
         require: true
-    },
+    }],
 
     //Calculated fields
     confidenceScore: {

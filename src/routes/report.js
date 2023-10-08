@@ -12,15 +12,15 @@ reportRouter.post('/', async (req, res, next)=>{
         const report = new Report({
             longitude: body.longitude,
             latitude: body.latitude,
-            images: [body.images], //TODO: Validate these images are actually from our CDN,
+            images: body.images, //TODO: Validate these images are actually from our CDN,
             confidenceScore: 0.0,
-            brightness: 1.0
+            brightness: null
         });
         
         await report.save()
         return res.json({
             status: "success",
-            id: note._id
+            id: report._id
         })
     }catch(err){
         next(err)
