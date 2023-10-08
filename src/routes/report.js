@@ -1,7 +1,7 @@
 const reportRouter = require("express").Router();
 const Report = require("../models/report");
 const multer = require("multer");
-const containerClient = require("../configs/containerClient");
+const containerClient = require("../utils/containerClient");
 const { v4: uuidv4 } = require("uuid");
 
 const storage = multer.memoryStorage();
@@ -11,9 +11,6 @@ reportRouter.post("/", upload.single("image"), async (req, res, next) => {
     
     try{
         const body = req.body;
-        
-        
-        
         //upload to azure blob storage
         const blobName = `${Date.now()}-${uuidv4()}-${req.file.originalname}`;
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
