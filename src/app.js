@@ -16,24 +16,27 @@ mongoose
   });
 
 //Endpoints
-const reportRouter = require("./routes/report")
+const reportRouter = require("./routes/report");
 const liveRouter = require("./routes/live");
+const predictionRouter = require("./routes/prediction");
 const bodyParser = require("body-parser");
 
-const app = express()
-morgan.token('body', function (req) { return JSON.stringify(req.body) })
+const app = express();
+morgan.token("body", function (req) {
+  return JSON.stringify(req.body);
+});
 
 //Middleware
-app.use(bodyParser.json({limit:'25mb'}))
+app.use(bodyParser.json({ limit: "25mb" }));
 app.use(express.json());
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms")
 );
 
 //Route middleware
-app.use('/api/report', reportRouter)
-app.use('/api/live', liveRouter)
-
+app.use("/api/report", reportRouter);
+app.use("/api/live", liveRouter);
+app.use("/api/prediction", predictionRouter);
 
 //Error handling
 app.use(errorHandler);

@@ -176,7 +176,6 @@ const getEviValues = async (lat, lon) => {
 
 const getBiomas = async (lat, lon) => {
   const evi = await getEviValues(lat, lon);
-  console.log(151.7 * evi - 39.76);
   return 151.7 * evi - 39.76;
 };
 

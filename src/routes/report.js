@@ -7,46 +7,44 @@ const webserviceCfg = require("../configs/ws")
 const cloudCfg = require("../configs/cloud")
 const axios = require("axios")
 
-reportRouter.get("/", async (req, res, next) =>{
-    const page = typeof(req.query.page) !== 'undefined' ? req.query.page : 0
-    
+reportRouter.get("/", async (req, res, next) => {
     //If no confidence filter is specified, we ignore the confidence score alltogether
-    const minConfidence = typeof(req.query.confidence) !== 'undefined' ? req.query.confidence : 0
-    const body = req.body;
-    
-    const reports = await Report.find({
-        location:{
-            $near : {
-                $geometry:{
-                    type: "Point",
-                    coordinates: [body.longitude, body.latitude]
-                }
-            }
-        }
-    })
+  const page = typeof req.query.page !== "undefined" ? req.query.page : 0;
+  const minConfidence = typeof req.query.confidence !== "undefined" ? req.query.confidence : 0;
+  const body = req.body;
 
-    //This doesn't work
-    //reports = await reports.find({confidenceScore: {$gte: minConfidence}})
-    
+  const reports = await Report.find({
+    location: {
+      $near: {
+        $geometry: {
+          type: "Point",
+          coordinates: [body.longitude, body.latitude],
+        },
+      },
+    },
+  });
 
-    //SQL ""Equivalent""":
-    //select * from reports where confidence > minConfidence and nearest(location) order by location asc
+  //This doesn't work
+  //reports = await reports.find({confidenceScore: {$gte: minConfidence}})
 
-    const totalPages = Math.ceil(reports.length / webserviceCfg.RESOURCE_PER_PAGE)
-    res.set('X-Total-Pages', totalPages)
-    res.set('X-Total-Records', reports.length)
-    
-    const lowerSliceBound = page*webserviceCfg.RESOURCE_PER_PAGE
-    const upperSliceBound = lowerSliceBound +  webserviceCfg.RESOURCE_PER_PAGE
-    
-    if(lowerSliceBound < reports.length){
-        return res.json(reports.slice(lowerSliceBound, upperSliceBound))
-    }else{
-        return res.json(reports.slice(-webserviceCfg.RESOURCE_PER_PAGE))
-    }
+  //SQL ""Equivalent""":
+  //select * from reports where confidence > minConfidence and nearest(location) order by location asc
 
+  const totalPages = Math.ceil(
+    reports.length / webserviceCfg.RESOURCE_PER_PAGE
+  );
+  res.set("X-Total-Pages", totalPages);
+  res.set("X-Total-Records", reports.length);
 
-})
+  const lowerSliceBound = page * webserviceCfg.RESOURCE_PER_PAGE;
+  const upperSliceBound = lowerSliceBound + webserviceCfg.RESOURCE_PER_PAGE;
+
+  if (lowerSliceBound < reports.length) {
+    return res.json(reports.slice(lowerSliceBound, upperSliceBound));
+  } else {
+    return res.json(reports.slice(-webserviceCfg.RESOURCE_PER_PAGE));
+  }
+});
 
 reportRouter.post("/", async (req, res, next) => {
     
@@ -107,6 +105,18 @@ reportRouter.post("/", async (req, res, next) => {
             next(err)
         }
     });
-    
-    module.exports = reportRouter;
-    
+
+reportRouter.get("/:id", async (req, res) => {
+  try {
+    const report = await Report.findById(req.params.id);
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+    res.json(report);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+module.exports = reportRouter;
