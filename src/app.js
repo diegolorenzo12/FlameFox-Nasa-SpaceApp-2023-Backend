@@ -5,6 +5,13 @@ const errorHandler = require('./middlewares/error_handler')
 //Database Configuration
 const databaseCfg = require('./configs/db');
 
+mongoose.connect(databaseCfg.ATLAS_URL).then(()=>{
+    console.log("The database has been connected succesfully")
+}).catch((err)=>{
+    console.log("Failed to connect " + err.message)
+})
+
+
 //Endpoints
 const reportRouter = require("./routes/report")
 
@@ -23,11 +30,6 @@ app.use('/api/report', reportRouter)
 //Error handling
 app.use(errorHandler)
 
-mongoose.connect(databaseCfg.ATLAS_URL).then(()=>{
-    console.log("The database has been connected succesfully")
-}).catch((err)=>{
-    console.log("Failed to connect " + err.message)
-})
 
 
 
