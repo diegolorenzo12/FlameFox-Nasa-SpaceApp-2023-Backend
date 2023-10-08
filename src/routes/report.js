@@ -7,6 +7,9 @@ const webserviceCfg = require("../configs/ws")
 
 reportRouter.get("/", async (req, res, next) =>{
     const page = typeof(req.query.page) !== 'undefined' ? req.query.page : 0
+    
+    //If no confidence filter is specified, we ignore the confidence score alltogether
+    const minConfidence = typeof(req.query.confidence) !== 'undefined' ? req.query.confidence : 0
     const body = req.body;
     
     const reports = await Report.find({
@@ -19,6 +22,13 @@ reportRouter.get("/", async (req, res, next) =>{
             }
         }
     })
+
+    //This doesn't work
+    //reports = await reports.find({confidenceScore: {$gte: minConfidence}})
+
+
+    //SQL ""Equivalent""":
+    //select * from reports where confidence > minConfidence and nearest(location) order by location asc
 
     const totalPages = Math.ceil(reports.length / webserviceCfg.RESOURCE_PER_PAGE)
     res.set('X-Total-Pages', totalPages)
