@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const express = require('express');
 const morgan = require('morgan')
 const errorHandler = require('./middlewares/error_handler')
+
 //Database Configuration
 const databaseCfg = require('./configs/db');
 
