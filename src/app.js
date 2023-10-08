@@ -15,7 +15,7 @@ mongoose.connect(databaseCfg.ATLAS_URL).then(()=>{
 
 //Endpoints
 const reportRouter = require("./routes/report")
-
+const liveRouter = require("./routes/live")
 
 const app = express()
 morgan.token('body', function (req) { return JSON.stringify(req.body) })
@@ -27,6 +27,8 @@ app.use(morgan(":method :url :status :res[content-length] - :response-time ms :b
 
 //Route middleware
 app.use('/api/report', reportRouter)
+app.use('/api/live', liveRouter)
+
 
 //Error handling
 app.use(errorHandler)
