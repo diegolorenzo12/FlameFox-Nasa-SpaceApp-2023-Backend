@@ -4,6 +4,8 @@ const multer = require("multer");
 const containerClient = require("../utils/containerClient");
 const { v4: uuidv4 } = require("uuid");
 const webserviceCfg = require("../configs/ws")
+const cloudCfg = require("../configs/cloud")
+const axios = require("axios")
 
 reportRouter.get("/", async (req, res, next) =>{
     const page = typeof(req.query.page) !== 'undefined' ? req.query.page : 0
@@ -25,7 +27,7 @@ reportRouter.get("/", async (req, res, next) =>{
 
     //This doesn't work
     //reports = await reports.find({confidenceScore: {$gte: minConfidence}})
-
+    
 
     //SQL ""Equivalent""":
     //select * from reports where confidence > minConfidence and nearest(location) order by location asc
@@ -49,23 +51,43 @@ reportRouter.get("/", async (req, res, next) =>{
 reportRouter.post("/", async (req, res, next) => {
     
     try{
-        const body = req.body;
-        
-        //Upload to azure blob storage
-        const blobName = `${Date.now()}-${uuidv4()}-${body.imageName}`;
-        const imgBuffer = Buffer.from(body.imageData, "base64")
-        
-        const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-        const uploadResponse = await blockBlobClient.upload(imgBuffer,imgBuffer.length)
+            const body = req.body;
             
-        //Check if the upload succesfull
-        if (!uploadResponse.requestId || uploadResponse.error) {
-            console.error("Error uploading file:", uploadResponse);
-            return res.status(400).json({ error: "Blob upload error" });
-        }
-        const imageUrl = blockBlobClient.url;
-        console.log(imageUrl);
+            //Upload to azure blob storage
+            const blobName = `${Date.now()}-${uuidv4()}-${body.imageName}`;
+            const imgBuffer = Buffer.from(body.imageData, "base64")
             
+            const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+            const uploadResponse = await blockBlobClient.upload(imgBuffer,imgBuffer.length)
+                
+            //Check if the upload succesfull
+            if (!uploadResponse.requestId || uploadResponse.error) {
+                console.error("Error uploading file:", uploadResponse);
+                return res.status(400).json({ error: "Blob upload error" });
+            }
+            const imageUrl = blockBlobClient.url;
+            console.log(imageUrl);
+                
+            //Use ML to detect fire is present in the image
+            const classifierRes = await axios.post(
+                cloudCfg.CLASSIFIER_MODEL_URL,
+                imgBuffer,
+                {headers:{'Authorization' : `Bearer ${cloudCfg.HF_KEY}`}}
+            )
+            
+            //Verify the server responded correction
+            if(classifierRes.status != 200){
+                return res.status(500).json({
+                    error : "VerificationServerNotAvailable",
+                    details: "The server resposible for handling image verifications couldn't be reached at this moment"
+                })
+            }
+            
+            
+            const visualConfidenceScore = classifierRes.data.find((e)=>{
+                return e["label"] === 'fire'
+            })["score"]
+
             // Create a new report
             const report = new Report({
                 location: {
@@ -74,8 +96,8 @@ reportRouter.post("/", async (req, res, next) => {
                 },
                 imageUrl: imageUrl,
                 imageName: blobName,
-                confidenceScore: 0.0,
-                brightness: 1.0,
+                confidenceScore: visualConfidenceScore,
+                brightness: null, //TODO: Calculate brightness?
             });
             
             // Save the report to the database
