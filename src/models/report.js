@@ -5,7 +5,7 @@ const reportSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    lattitude:{
+    latitude:{
         type: String,
         required: true
     },
@@ -24,4 +24,4 @@ const reportSchema = new mongoose.Schema({
     }
 })
 
-const Report = new mongoose.Schema(reportSchema)
+module.exports = mongoose.model('Report',reportSchema)
