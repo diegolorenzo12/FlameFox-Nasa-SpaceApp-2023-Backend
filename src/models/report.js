@@ -5,7 +5,7 @@ const reportSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    lattitude:{
+    latitude:{
         type: String,
         required: true
     },

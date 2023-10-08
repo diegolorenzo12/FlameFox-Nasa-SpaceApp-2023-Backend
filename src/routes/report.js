@@ -11,7 +11,7 @@ reportRouter.post('/', async (req, res, next)=>{
         const body = req.body;
         const report = new Report({
             longitude: body.longitude,
-            longitude: body.lattitude,
+            latitude: body.latitude,
             images: [body.images], //TODO: Validate these images are actually from our CDN,
             confidenceScore: 0.0,
             brightness: 1.0
