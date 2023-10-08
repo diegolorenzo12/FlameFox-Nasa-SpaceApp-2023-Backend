@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors")
 const errorHandler = require("./middlewares/error_handler");
 
 //Database Configuration
@@ -27,11 +28,13 @@ morgan.token("body", function (req) {
 });
 
 //Middleware
+app.use(cors())
 app.use(bodyParser.json({ limit: "25mb" }));
 app.use(express.json());
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms")
 );
+
 
 //Route middleware
 app.use("/api/report", reportRouter);
