@@ -1,3 +1,6 @@
-ATLAS_CONFIG = process.env.ATLAS_CONFIG
+require("dotenv").config()
+const ATLAS_URL = process.env.ATLAS_URL
 
-module.exports = {ATLAS_CONFIG}
+console.log(process.env.ATLAS_URL)
+
+module.exports = {ATLAS_URL}
