@@ -3,9 +3,10 @@ const Report = require("../models/report");
 const multer = require("multer");
 const containerClient = require("../utils/containerClient");
 const { v4: uuidv4 } = require("uuid");
+const webserviceCfg = require("../configs/ws")
 
 reportRouter.get("/", async (req, res, next) =>{
-    const page = req.query.page
+    const page = typeof(req.query.page) !== 'undefined' ? req.query.page : 0
     const body = req.body;
     
     const reports = await Report.find({
@@ -18,8 +19,19 @@ reportRouter.get("/", async (req, res, next) =>{
             }
         }
     })
+
+    const totalPages = Math.ceil(reports.length / webserviceCfg.RESOURCE_PER_PAGE)
+    res.set('X-Total-Pages', totalPages)
+    res.set('X-Total-Records', reports.length)
     
-    res.json(reports)
+    const lowerSliceBound = page*webserviceCfg.RESOURCE_PER_PAGE
+    const upperSliceBound = lowerSliceBound +  webserviceCfg.RESOURCE_PER_PAGE
+    
+    if(lowerSliceBound < reports.length){
+        return res.json(reports.slice(lowerSliceBound, upperSliceBound))
+    }else{
+        return res.json(reports.slice(-webserviceCfg.RESOURCE_PER_PAGE))
+    }
 
 
 })
