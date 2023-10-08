@@ -11,26 +11,26 @@ reportRouter.post("/", upload.single("image"), async (req, res, next) => {
     
     try{
         const body = req.body;
-        //upload to azure blob storage
-        const blobName = `${Date.now()}-${uuidv4()}-${req.file.originalname}`;
+        
+        //Upload to azure blob storage
+        const blobName = `${Date.now()}-${uuidv4()}-${body.imageName}`;
+        const imgBuffer = Buffer.from(body.imageData, "base64")
+        
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-        const uploadResponse = await blockBlobClient.upload(
-            req.file.buffer,
-            req.file.buffer.length
-            );
+        const uploadResponse = await blockBlobClient.upload(imgBuffer,imgBuffer.length)
             
-            //check is upload succesfull
-            if (!uploadResponse.requestId && uploadResponse.error) {
-                console.error("Error uploading file:", uploadResponse);
-                return res.status(400).json({ error: "Connection error" });
-            }
-            const imageUrl = blockBlobClient.url;
-            console.log(imageUrl);
+        //Check if the upload succesfull
+        if (!uploadResponse.requestId || uploadResponse.error) {
+            console.error("Error uploading file:", uploadResponse);
+            return res.status(400).json({ error: "Blob upload error" });
+        }
+        const imageUrl = blockBlobClient.url;
+        console.log(imageUrl);
             
             // Create a new report
             const report = new Report({
-                longitude: req.body.longitude,
-                latitude: req.body.latitude,
+                longitude: body.longitude,
+                latitude: body.latitude,
                 imageUrl: imageUrl,
                 imageName: blobName,
                 confidenceScore: 0.0,
