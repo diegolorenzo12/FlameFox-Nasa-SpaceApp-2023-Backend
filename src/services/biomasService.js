@@ -64,7 +64,7 @@ async function findLatestEVIImageUrl(maxDaysToLookBack = 50) {
 // Usage example:
 findLatestEVIImageUrl()
   .then((latestImageUrl) => {
-    console.log("Latest EVI Image URL:", latestImageUrl);
+    //console.log("Latest EVI Image URL:", latestImageUrl);
   })
   .catch((error) => {
     console.error("Error:", error.message);
@@ -176,6 +176,7 @@ const getEviValues = async (lat, lon) => {
 
 const getBiomas = async (lat, lon) => {
   const evi = await getEviValues(lat, lon);
+  console.log(151.7 * evi - 39.76);
   return 151.7 * evi - 39.76;
 };
 
