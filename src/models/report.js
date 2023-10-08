@@ -1,30 +1,39 @@
 const mongoose = require("mongoose");
 
-const reportSchema = new mongoose.Schema({
-  longitude: {
-    type: String,
-    required: true,
-  },
-  latitude: {
-    type: String,
-    required: true,
-  },
-  imageUrl: {
-    type: String,
-    required: true,
-  },
-  imageName: {
-    type: String,
-    required: true,
-  },
-  //Calculated fields
-  confidenceScore: {
-    type: Number,
-  },
+const pointSchema = new mongoose.Schema({
+    type:{
+        type: String,
+        enum: ['Point'],
+        required: true
+    },
+    coordinates:{
+        type: [Number],
+        required: true
+    }
+})
 
-  brightness: {
-    type: Number,
-  },
+const reportSchema = new mongoose.Schema({
+    location:{
+        type: pointSchema,
+        required: true
+    },
+    imageUrl: {
+        type: String,
+        required: true,
+    },
+    imageName: {
+        type: String,
+        required: true,
+    },
+    //Calculated fields
+    confidenceScore: {
+        type: Number,
+    },
+    
+    brightness: {
+        type: Number,
+    },
 });
 
+reportSchema.index({location: "2dsphere"})
 module.exports = mongoose.model("Report", reportSchema);

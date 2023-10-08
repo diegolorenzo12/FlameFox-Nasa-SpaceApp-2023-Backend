@@ -4,10 +4,27 @@ const multer = require("multer");
 const containerClient = require("../utils/containerClient");
 const { v4: uuidv4 } = require("uuid");
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+reportRouter.get("/", async (req, res, next) =>{
+    const page = req.query.page
+    const body = req.body;
+    
+    const reports = await Report.find({
+        location:{
+            $near : {
+                $geometry:{
+                    type: "Point",
+                    coordinates: [body.longitude, body.latitude]
+                }
+            }
+        }
+    })
+    
+    res.json(reports)
 
-reportRouter.post("/", upload.single("image"), async (req, res, next) => {
+
+})
+
+reportRouter.post("/", async (req, res, next) => {
     
     try{
         const body = req.body;
@@ -29,8 +46,10 @@ reportRouter.post("/", upload.single("image"), async (req, res, next) => {
             
             // Create a new report
             const report = new Report({
-                longitude: body.longitude,
-                latitude: body.latitude,
+                location: {
+                    type: "Point",
+                    coordinates: [ body.longitude, body.latitude]
+                },
                 imageUrl: imageUrl,
                 imageName: blobName,
                 confidenceScore: 0.0,

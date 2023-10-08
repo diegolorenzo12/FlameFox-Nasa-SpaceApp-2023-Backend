@@ -17,12 +17,14 @@ mongoose
 
 //Endpoints
 const reportRouter = require("./routes/report")
-const liveRouter = require("./routes/live")
+const liveRouter = require("./routes/live");
+const bodyParser = require("body-parser");
 
 const app = express()
 morgan.token('body', function (req) { return JSON.stringify(req.body) })
 
 //Middleware
+app.use(bodyParser.json({limit:'25mb'}))
 app.use(express.json());
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body")
