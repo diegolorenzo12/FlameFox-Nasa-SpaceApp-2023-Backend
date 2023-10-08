@@ -15,5 +15,13 @@
   "bugs": {
     "url": "https://github.com/diegolorenzo12/FlameFox-Nasa-SpaceApp-2023-Backend/issues"
   },
-  "homepage": "https://github.com/diegolorenzo12/FlameFox-Nasa-SpaceApp-2023-Backend#readme"
+  "homepage": "https://github.com/diegolorenzo12/FlameFox-Nasa-SpaceApp-2023-Backend#readme",
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mongoose": "^7.6.0"
+  }
 }
