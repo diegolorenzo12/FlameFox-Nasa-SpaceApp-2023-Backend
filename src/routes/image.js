@@ -21,7 +21,7 @@ imageRouter.post("/", upload.single("file"), async(req, res) => {
 
     return  res.json({
         status: "ok",
-        resourceId: blobName
+        resourceId: blockBlobClient.url
     })
 })
 
