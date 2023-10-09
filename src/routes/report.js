@@ -10,37 +10,54 @@ const axios = require("axios")
 reportRouter.get("/", async (req, res, next) => {
     //If no confidence filter is specified, we ignore the confidence score alltogether
     const page = typeof req.query.page !== "undefined" ? req.query.page : 0;
-    const minConfidence = typeof req.query.confidence !== "undefined" ? req.query.confidence : 0;
+    const minConfidence = typeof req.query.confidence !== "undefined" ? req.query.confidence : 0.65;
     const body = req.body;
-    
-    const reports = await Report.find({
-        location: {
-            $near: {
-                $geometry: {
-                    type: "Point",
-                    coordinates: [body.longitude, body.latitude],
+    try{
+        let reports = null
+        //Sorty by Geo-data
+        if(typeof(body.longitude) !== "undefined" && typeof(body.latitude) !== "undefined"){
+            await Report.find({
+                location: {
+                    $near: {
+                        $geometry: {
+                            type: "Point",
+                            coordinates: [body.longitude, body.latitude],
+                        },
+                    },
                 },
-            },
-        },
-    });
-    
-    //This doesn't work
-    //reports = await reports.find({confidenceScore: {$gte: minConfidence}})
-    
-    //SQL ""Equivalent""":
-    //select * from reports where confidence > minConfidence and nearest(location) order by location asc
-    
-    const totalPages = Math.ceil(reports.length / webserviceCfg.RESOURCE_PER_PAGE);
-    res.set("X-Total-Pages", totalPages);
-    res.set("X-Total-Records", reports.length);
-    
-    const lowerSliceBound = page * webserviceCfg.RESOURCE_PER_PAGE;
-    const upperSliceBound = lowerSliceBound + webserviceCfg.RESOURCE_PER_PAGE;
-    
-    if (lowerSliceBound < reports.length) {
-        return res.json(reports.slice(lowerSliceBound, upperSliceBound));
-    } else {
-        return res.json(reports.slice(-webserviceCfg.RESOURCE_PER_PAGE));
+                confidenceScore : {$gte : minConfidence}
+            });
+        }
+        //Just filter out untrustworthy images
+        else{
+            reports = await Report.find({
+                confidenceScore : {$gte : minConfidence}
+            })
+        }
+        
+        
+        
+        //This doesn't work
+        //reports = await reports.find({confidenceScore: {$gte: minConfidence}})
+        
+        //SQL ""Equivalent""":
+        //select * from reports where confidence > minConfidence and nearest(location) order by location asc
+        
+        const totalPages = Math.ceil(reports.length / webserviceCfg.RESOURCE_PER_PAGE);
+        res.set("X-Total-Pages", totalPages);
+        res.set("X-Total-Records", reports.length);
+        
+        const lowerSliceBound = page * webserviceCfg.RESOURCE_PER_PAGE;
+        const upperSliceBound = lowerSliceBound + webserviceCfg.RESOURCE_PER_PAGE;
+        
+        if (lowerSliceBound < reports.length) {
+            return res.json(reports.slice(lowerSliceBound, upperSliceBound));
+        } else {
+            return res.json(reports.slice(-webserviceCfg.RESOURCE_PER_PAGE));
+        }
+    }catch(err){
+        console.log(err.message)
+        next(err)
     }
 });
     
