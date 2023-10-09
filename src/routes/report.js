@@ -31,8 +31,9 @@ reportRouter.get("/", async (req, res, next) => {
     //select * from reports where confidence > minConfidence and nearest(location) order by location asc
     
     const totalPages = Math.ceil(reports.length / webserviceCfg.RESOURCE_PER_PAGE);
-    res.set("X-Total-Pages", totalPages);
-    res.set("X-Total-Records", reports.length);
+    res.append("Access-Control-Expose-Headers", "X-Total-Pages, X-Total-Records")
+    res.append("X-Total-Pages", totalPages);
+    res.append("X-Total-Records", reports.length);
     
     const lowerSliceBound = page * webserviceCfg.RESOURCE_PER_PAGE;
     const upperSliceBound = lowerSliceBound + webserviceCfg.RESOURCE_PER_PAGE;

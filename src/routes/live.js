@@ -19,6 +19,7 @@ liveRouter.get("/", async (req, res, next) => {
     const upperSliceBound = lowerSliceBound + resourceLimit;
     console.log(`lower: ${lowerSliceBound}, upper: ${upperSliceBound}`);
 
+    res.append("Access-Control-Expose-Headers", "X-Total-Pages, X-Total-Records")
     res.append("X-Total-Pages", Math.ceil(fireData.length / resourceLimit));
     res.append("X-Total-Records", fireData.length);
 
