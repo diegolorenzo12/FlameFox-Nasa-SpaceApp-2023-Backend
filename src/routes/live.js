@@ -2,34 +2,30 @@ const liveRouter = require("express").Router();
 const fetchFireData = require("../services/fireService");
 const webserviceCfg = require("../configs/ws");
 
+function getRandomElements(arr, count) {
+  const shuffled = arr.slice(0);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled.slice(0, count);
+}
+
 liveRouter.get("/", async (req, res, next) => {
   try {
-    //Filters
-    const body = req.body;
-    const page =
-      typeof req.query.page !== "undefined" ? Number(req.query.page) : 0;
-    const resourceLimit =
-      typeof req.query.limit !== "undefined"
-        ? Number(req.query.limit)
-        : webserviceCfg.RESOURCE_PER_PAGE;
-
-    const fireData = await fetchFireData("world");
-    console.log(fireData);
-    const lowerSliceBound = page * resourceLimit;
-    const upperSliceBound = lowerSliceBound + resourceLimit;
-    console.log(`lower: ${lowerSliceBound}, upper: ${upperSliceBound}`);
-
-    res.append("Access-Control-Expose-Headers", "X-Total-Pages, X-Total-Records")
-    res.append("X-Total-Pages", Math.ceil(fireData.length / resourceLimit));
-    res.append("X-Total-Records", fireData.length);
-
-    if (lowerSliceBound < fireData.length) {
-      return res.json(fireData.slice(lowerSliceBound, upperSliceBound));
-    } else {
-      //Prevents getting an empty response when requesting
-      //a page number higher than the total pages
-      return res.json(fireData.slice(-resourceLimit));
+    let limit = req.query.limit;
+    if (!limit) {
+      limit = 100;
     }
+    const fireData = await fetchFireData("world");
+    const shortFireData = fireData.map((item) => ({
+      latitude: item.latitude,
+      longitude: item.longitude,
+      bright_ti5: item.bright_ti5,
+    }));
+
+    const randomFireData = getRandomElements(shortFireData, limit);
+    return res.send(randomFireData);
   } catch (err) {
     next(err);
   }
