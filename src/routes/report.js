@@ -50,7 +50,7 @@ reportRouter.post("/", async (req, res, next) => {
         
         //TODO: Validate the URL belongs points to FlameFox CDN
         //HUUUUUUUUUGE security risk O_O
-        const imgData = await axios.get(body.imageId, { responseTypex: 'arraybuffer' })
+        const imgData = await axios.get(body.imageId, { responseType: 'arraybuffer' })
         const imgBuffer = Buffer.from(imgData.data)
        
         //Use ML to detect fire is present in the image
