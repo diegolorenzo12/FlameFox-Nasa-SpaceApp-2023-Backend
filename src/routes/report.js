@@ -49,21 +49,11 @@ reportRouter.post("/", async (req, res, next) => {
     try{
         const body = req.body;
         
-        //Upload to azure blob storage
-        const blobName = `${Date.now()}-${uuidv4()}-${body.imageName}`;
-        const imgBuffer = Buffer.from(body.imageData, "base64")
-        
-        const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-        const uploadResponse = await blockBlobClient.upload(imgBuffer,imgBuffer.length)
-        
-        //Check if the upload succesfull
-        if (!uploadResponse.requestId || uploadResponse.error) {
-            console.error("Error uploading file:", uploadResponse);
-            return res.status(400).json({ error: "Blob upload error" });
-        }
-        const imageUrl = blockBlobClient.url;
-        console.log(imageUrl);
-        
+        //TODO: Validate the URL belongs points to FlameFox CDN
+        //HUUUUUUUUUGE security risk O_O
+        const imgData = await axios.get(body.imageId, { responseType: 'arraybuffer' })
+        const imgBuffer = Buffer.from(imgData.data)
+       
         //Use ML to detect fire is present in the image
         const classifierRes = await axios.post(
             cloudCfg.CLASSIFIER_MODEL_URL,
@@ -82,14 +72,15 @@ reportRouter.post("/", async (req, res, next) => {
             
         const visualConfidenceScore = classifierRes.data.find((e)=>{return e["label"] === 'fire'})["score"]
             
+
+
         // Create a new report
         const report = new Report({
             location: {
                 type: "Point",
                 coordinates: [ body.longitude, body.latitude]
             },
-            imageUrl: imageUrl,
-            imageName: blobName,
+            imageUrl: body.imageId,
             confidenceScore: visualConfidenceScore,
             brightness: null, //TODO: Calculate brightness?
         });

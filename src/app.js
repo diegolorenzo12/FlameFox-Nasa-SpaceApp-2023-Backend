@@ -20,19 +20,21 @@ mongoose
 const reportRouter = require("./routes/report");
 const liveRouter = require("./routes/live");
 const predictionRouter = require("./routes/prediction");
-const bodyParser = require("body-parser");
+const imagesRouter = require("./routes/image")
 
 const app = express();
+
 morgan.token("body", function (req) {
-  return JSON.stringify(req.body);
+    return JSON.stringify(req.body);
 });
 
 //Middleware
+const bodyParser = require("body-parser");
 app.use(cors())
 app.use(bodyParser.json({ limit: "25mb" }));
 app.use(express.json());
 app.use(
-  morgan(":method :url :status :res[content-length] - :response-time ms")
+  morgan(":method :url :status :res[content-length] - :response-time ms :body")
 );
 
 
@@ -40,7 +42,7 @@ app.use(
 app.use("/api/report", reportRouter);
 app.use("/api/live", liveRouter);
 app.use("/api/prediction", predictionRouter);
-
+app.use("/api/images", imagesRouter)
 //Error handling
 app.use(errorHandler);
 
