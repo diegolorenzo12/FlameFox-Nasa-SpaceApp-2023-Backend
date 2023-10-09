@@ -8,6 +8,6 @@ const {PORT} = require("./src/configs/ws")
 
 const app = require('./src/app')
 
-app.listen(1080, () =>{
+app.listen(PORT, () =>{
     console.log("Server started on port " + PORT)
 })
