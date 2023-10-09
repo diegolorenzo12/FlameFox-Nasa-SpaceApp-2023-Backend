@@ -21,10 +21,6 @@ const reportSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    imageName: {
-        type: String,
-        required: true,
-    },
     //Calculated fields
     confidenceScore: {
         type: Number,
